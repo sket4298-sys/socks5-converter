@@ -2,9 +2,9 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SOCKS5 转换工具</title>
 <style>
-    /* 页面整体背景渐变 + 轻微纹理 */
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
@@ -14,8 +14,6 @@
         min-height: 100vh;
         background-attachment: fixed;
     }
-
-    /* 可叠加微小粒子纹理 */
     body::before {
         content: '';
         position: fixed;
@@ -25,21 +23,18 @@
         background-size: 50px 50px;
         pointer-events: none;
     }
-
     h2 {
-        margin-bottom: 30px;
         text-align: center;
         color: #222;
         font-size: 28px;
         text-shadow: 1px 1px 2px rgba(255,255,255,0.7);
+        margin-bottom: 30px;
     }
-
     .tabs {
         display: flex;
         justify-content: center;
         margin-bottom: 25px;
     }
-
     .tab {
         padding: 12px 30px;
         cursor: pointer;
@@ -51,21 +46,17 @@
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         backdrop-filter: blur(5px);
     }
-
     .tab:hover { 
         background: rgba(255,255,255,0.95); 
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-
     .tab.active { 
         background: #fff; 
         font-weight: bold; 
         border-bottom: 2px solid #fff; 
         box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     }
-
-    /* 输出框弹出动画 */
     .tab-content {
         display: none;
         background: rgba(255,255,255,0.95);
@@ -79,13 +70,11 @@
         transition: all 0.3s ease;
         backdrop-filter: blur(5px);
     }
-
     .tab-content.active {
         display: block;
         transform: scale(1);
         opacity: 1;
     }
-
     input[type="text"], textarea {
         width: 100%;
         font-size: 15px;
@@ -99,16 +88,13 @@
         cursor: text;
         backdrop-filter: blur(5px);
     }
-
     input[type="text"]:focus, textarea:focus {
         border-color: #4a90e2;
         box-shadow: 0 0 15px rgba(74,144,226,0.4);
         outline: none;
         background: rgba(255,255,255,0.95);
     }
-
     .hint { color: #666; font-size: 14px; margin-bottom: 12px; }
-
     .btn {
         padding: 12px 20px;
         font-size: 15px;
@@ -121,37 +107,21 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         user-select: none;
     }
-
     .btn:active {
         transform: scale(0.95);
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
-
-    .btn-primary { 
-        background: linear-gradient(45deg, #4a90e2, #357ABD);
+    .btn-primary { background: linear-gradient(45deg, #4a90e2, #357ABD); }
+    .btn-primary:hover { background: linear-gradient(45deg, #357ABD, #4a90e2); }
+    .btn-secondary { background: linear-gradient(45deg, #7f8c8d, #566573); }
+    .btn-secondary:hover { background: linear-gradient(45deg, #566573, #7f8c8d); }
+    .btn-danger { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+    .btn-danger:hover { background: linear-gradient(45deg, #c0392b, #e74c3c); }
+    .status {
+        font-size: 14px;
+        color: #e74c3c;
+        margin-bottom: 10px;
     }
-    .btn-primary:hover { 
-        background: linear-gradient(45deg, #357ABD, #4a90e2);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 14px rgba(0,0,0,0.2);
-    }
-    .btn-secondary { 
-        background: linear-gradient(45deg, #7f8c8d, #566573);
-    }
-    .btn-secondary:hover { 
-        background: linear-gradient(45deg, #566573, #7f8c8d);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 14px rgba(0,0,0,0.2);
-    }
-    .btn-danger { 
-        background: linear-gradient(45deg, #e74c3c, #c0392b);
-    }
-    .btn-danger:hover { 
-        background: linear-gradient(45deg, #c0392b, #e74c3c);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 14px rgba(0,0,0,0.2);
-    }
-
     ul { font-size: 14px; line-height: 1.8; }
 </style>
 </head>
@@ -169,13 +139,12 @@
 <div id="singleTab" class="tab-content active">
     <div class="hint">输入一条 SOCKS5 链接</div>
     <input type="text" id="singleInput" placeholder="socks5://user:pass@host:port#remark">
-
+    <div class="status" id="singleStatus"></div>
     <div style="margin-bottom: 15px;">
         <button class="btn btn-primary" onclick="convertSingle()">转换</button>
         <button class="btn btn-secondary" onclick="copySingle()">复制结果</button>
         <button class="btn btn-danger" onclick="clearSingle()">清空</button>
     </div>
-
     <div class="hint">转换结果</div>
     <textarea id="singleOutput" placeholder="转换结果"></textarea>
 </div>
@@ -184,13 +153,12 @@
 <div id="batchTab" class="tab-content">
     <div class="hint">每行一条 SOCKS5 链接</div>
     <textarea id="batchInput" placeholder="socks5://user:pass@host:port#remark"></textarea>
-
+    <div class="status" id="batchStatus"></div>
     <div style="margin-bottom: 15px;">
         <button class="btn btn-primary" onclick="convertBatch()">批量转换</button>
         <button class="btn btn-secondary" onclick="copyBatch()">复制结果</button>
         <button class="btn btn-danger" onclick="clearBatch()">清空</button>
     </div>
-
     <div class="hint">转换结果</div>
     <textarea id="batchOutput" placeholder="转换结果"></textarea>
 </div>
@@ -203,7 +171,7 @@
         <li><strong>输出格式：</strong>host:port:username:password</li>
         <li>转换结果会手动复制到剪贴板。</li>
         <li>点击“清空”可清空输入和输出。</li>
-        <li>格式错误或不完整的链接将被自动忽略。</li>
+        <li>格式错误或不完整的链接会自动忽略，并在状态提示有效/无效行数。</li>
     </ul>
 </div>
 
@@ -215,9 +183,8 @@ function showTab(tabId, el) {
     el.classList.add('active');
 }
 
-// 转换函数
 function convertLink(line) {
-    const cleaned = line.trim().replace(/^socks5:\/\//, "").split("#")[0];
+    const cleaned = line.trim().replace(/^socks5:\/\//i, "").split("#")[0];
     if (!cleaned.includes("@")) return null;
     const [userInfo, hostInfo] = cleaned.split("@");
     if (!userInfo || !hostInfo) return null;
@@ -227,75 +194,71 @@ function convertLink(line) {
     return null;
 }
 
-// 单链接转换
+function showStatus(el, msg, color="#e74c3c") {
+    el.textContent = msg;
+    el.style.color = color;
+}
+
+async function copyText(el, statusEl) {
+    if (!el.value) return showStatus(statusEl, "没有内容可以复制！");
+    try {
+        await navigator.clipboard.writeText(el.value);
+        showStatus(statusEl, "已复制到剪贴板！", "#27ae60");
+    } catch {
+        showStatus(statusEl, "复制失败！");
+    }
+}
+
+// 单链接
 function convertSingle() {
     const line = document.getElementById("singleInput").value.trim();
     const outputEl = document.getElementById("singleOutput");
-    if (!line) return alert("请输入 SOCKS5 链接！");
+    const statusEl = document.getElementById("singleStatus");
+    if (!line) return showStatus(statusEl, "请输入 SOCKS5 链接！");
     const result = convertLink(line);
-    if (!result) return alert("链接格式错误！");
+    if (!result) return showStatus(statusEl, "链接格式错误！");
     outputEl.value = result;
-
-    outputEl.style.transform = "scale(0.95)";
-    outputEl.style.opacity = "0";
-    setTimeout(() => {
-        outputEl.style.transition = "all 0.3s ease";
-        outputEl.style.transform = "scale(1)";
-        outputEl.style.opacity = "1";
-    }, 50);
+    outputEl.classList.add('active');
+    showStatus(statusEl, "转换成功！", "#27ae60");
 }
 
-// 单链接复制
 function copySingle() {
-    const outputEl = document.getElementById("singleOutput");
-    if (!outputEl.value) return alert("没有内容可以复制！");
-    outputEl.select();
-    document.execCommand("copy");
-    alert("结果已复制到剪贴板！");
+    copyText(document.getElementById("singleOutput"), document.getElementById("singleStatus"));
 }
 
-// 单链接清空
 function clearSingle() {
     document.getElementById("singleInput").value = "";
     document.getElementById("singleOutput").value = "";
+    document.getElementById("singleStatus").textContent = "";
 }
 
-// 批量转换
+// 批量
 function convertBatch() {
     const input = document.getElementById("batchInput").value.trim();
     const outputEl = document.getElementById("batchOutput");
-    if (!input) return alert("请输入 SOCKS5 链接！");
+    const statusEl = document.getElementById("batchStatus");
+    if (!input) return showStatus(statusEl, "请输入 SOCKS5 链接！");
     const lines = input.split(/\r?\n/);
     const results = [];
-    for (const line of lines) {
+    let invalidCount = 0;
+    lines.forEach((line, index) => {
         const converted = convertLink(line);
         if (converted) results.push(converted);
-    }
-    if (results.length === 0) return alert("没有有效的 SOCKS5 链接！");
+        else if (line.trim()) invalidCount++;
+    });
+    if (results.length === 0) return showStatus(statusEl, "没有有效的 SOCKS5 链接！");
     outputEl.value = results.join("\n");
-
-    outputEl.style.transform = "scale(0.95)";
-    outputEl.style.opacity = "0";
-    setTimeout(() => {
-        outputEl.style.transition = "all 0.3s ease";
-        outputEl.style.transform = "scale(1)";
-        outputEl.style.opacity = "1";
-    }, 50);
+    showStatus(statusEl, `转换完成！有效: ${results.length}, 无效: ${invalidCount}`, "#27ae60");
 }
 
-// 批量复制
 function copyBatch() {
-    const outputEl = document.getElementById("batchOutput");
-    if (!outputEl.value) return alert("没有内容可以复制！");
-    outputEl.select();
-    document.execCommand("copy");
-    alert("批量结果已复制到剪贴板！");
+    copyText(document.getElementById("batchOutput"), document.getElementById("batchStatus"));
 }
 
-// 批量清空
 function clearBatch() {
     document.getElementById("batchInput").value = "";
     document.getElementById("batchOutput").value = "";
+    document.getElementById("batchStatus").textContent = "";
 }
 </script>
 
