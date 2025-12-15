@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>SOCKS5 批量转换工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background: #f4f6f8;
+        }
+        h2 {
+            margin-bottom: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 180px;
+            font-size: 14px;
+            margin: 10px 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .hint {
+            color: #666;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>SOCKS5 批量格式转换（自动复制）</h2>
+<div class="hint">每行一个 socks5 链接</div>
+
+<textarea id="input" placeholder="socks5://user:pass@host:port#remark"></textarea>
+
+<!-- 按钮区 -->
+<button onclick="convertAndCopy()">转换并自动复制</button>
+<button onclick="clearAll()">一键清除</button>
+
+<textarea id="output" placeholder="转换结果（已自动复制）"></textarea>
+
+<script>
+function convertAndCopy() {
+    const inputEl = document.getElementById("input");
+    const outputEl = document.getElementById("output");
+
+    const input = inputEl.value.trim();
+    if (!input) return;
+
+    const lines = input.split(/\r?\n/);
+    const results = [];
+
+    for (const line of lines) {
+        const cleaned = line
+            .trim()
+            .replace(/^socks5:\/\//, "")
+            .split("#")[0];
+
+        const [userInfo, hostInfo] = cleaned.split("@");
+        if (!userInfo || !hostInfo) continue;
+
+        const [username, password] = userInfo.split(":");
+        const [host, port] = hostInfo.split(":");
+
+        if (username && password && host && port) {
+            results.push(`${host}:${port}:${username}:${password}`);
+        }
+    }
+
+    const outputText = results.join("\n");
+    outputEl.value = outputText;
+
+    // 自动复制（兼容你现在的写法）
+    outputEl.select();
+    document.execCommand("copy");
+}
+
+// ✅ 一键清除函数
+function clearAll() {
+    document.getElementById("input").value = "";
+    document.getElementById("output").value = "";
+}
+</script>
+
+</body>
+</html>
