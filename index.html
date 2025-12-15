@@ -1,90 +1,301 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>SOCKS5 批量转换工具</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 30px;
-            background: #f4f6f8;
-        }
-        h2 {
-            margin-bottom: 10px;
-        }
-        textarea {
-            width: 100%;
-            height: 180px;
-            font-size: 14px;
-            margin: 10px 0;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 12px 25px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        .hint {
-            color: #666;
-            font-size: 13px;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>SOCKS5 转换工具</title>
+<style>
+    /* 页面整体背景渐变 + 轻微纹理 */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        margin: 0;
+        padding: 40px 20px;
+        color: #333;
+        min-height: 100vh;
+        background-attachment: fixed;
+    }
+
+    /* 可叠加微小粒子纹理 */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-image: radial-gradient(rgba(255,255,255,0.2) 1px, transparent 1px);
+        background-size: 50px 50px;
+        pointer-events: none;
+    }
+
+    h2 {
+        margin-bottom: 30px;
+        text-align: center;
+        color: #222;
+        font-size: 28px;
+        text-shadow: 1px 1px 2px rgba(255,255,255,0.7);
+    }
+
+    .tabs {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 25px;
+    }
+
+    .tab {
+        padding: 12px 30px;
+        cursor: pointer;
+        background: rgba(255,255,255,0.8);
+        margin-right: 5px;
+        border-radius: 8px 8px 0 0;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        backdrop-filter: blur(5px);
+    }
+
+    .tab:hover { 
+        background: rgba(255,255,255,0.95); 
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .tab.active { 
+        background: #fff; 
+        font-weight: bold; 
+        border-bottom: 2px solid #fff; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    /* 输出框弹出动画 */
+    .tab-content {
+        display: none;
+        background: rgba(255,255,255,0.95);
+        padding: 30px;
+        border-radius: 0 8px 8px 8px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        max-width: 800px;
+        margin: 0 auto 40px auto;
+        transform: scale(0.95);
+        opacity: 0;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+    }
+
+    .tab-content.active {
+        display: block;
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    input[type="text"], textarea {
+        width: 100%;
+        font-size: 15px;
+        padding: 14px;
+        margin: 12px 0 18px 0;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        background: rgba(250,250,250,0.8);
+        cursor: text;
+        backdrop-filter: blur(5px);
+    }
+
+    input[type="text"]:focus, textarea:focus {
+        border-color: #4a90e2;
+        box-shadow: 0 0 15px rgba(74,144,226,0.4);
+        outline: none;
+        background: rgba(255,255,255,0.95);
+    }
+
+    .hint { color: #666; font-size: 14px; margin-bottom: 12px; }
+
+    .btn {
+        padding: 12px 20px;
+        font-size: 15px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-right: 10px;
+        transition: all 0.15s ease;
+        color: #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        user-select: none;
+    }
+
+    .btn:active {
+        transform: scale(0.95);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .btn-primary { 
+        background: linear-gradient(45deg, #4a90e2, #357ABD);
+    }
+    .btn-primary:hover { 
+        background: linear-gradient(45deg, #357ABD, #4a90e2);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+    }
+    .btn-secondary { 
+        background: linear-gradient(45deg, #7f8c8d, #566573);
+    }
+    .btn-secondary:hover { 
+        background: linear-gradient(45deg, #566573, #7f8c8d);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+    }
+    .btn-danger { 
+        background: linear-gradient(45deg, #e74c3c, #c0392b);
+    }
+    .btn-danger:hover { 
+        background: linear-gradient(45deg, #c0392b, #e74c3c);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+    }
+
+    ul { font-size: 14px; line-height: 1.8; }
+</style>
 </head>
 <body>
 
-<h2>SOCKS5 批量格式转换（自动复制）</h2>
-<div class="hint">每行一个 socks5 链接</div>
+<h2>SOCKS5 转换工具</h2>
 
-<textarea id="input" placeholder="socks5://user:pass@host:port#remark"></textarea>
+<div class="tabs">
+    <div class="tab active" onclick="showTab('singleTab', this)">单链接转换</div>
+    <div class="tab" onclick="showTab('batchTab', this)">批量转换</div>
+    <div class="tab" onclick="showTab('guideTab', this)">使用说明</div>
+</div>
 
-<!-- 按钮区 -->
-<button onclick="convertAndCopy()">转换并自动复制</button>
-<button onclick="clearAll()">一键清除</button>
+<!-- 单链接转换 -->
+<div id="singleTab" class="tab-content active">
+    <div class="hint">输入一条 SOCKS5 链接</div>
+    <input type="text" id="singleInput" placeholder="socks5://user:pass@host:port#remark">
 
-<textarea id="output" placeholder="转换结果（已自动复制）"></textarea>
+    <div style="margin-bottom: 15px;">
+        <button class="btn btn-primary" onclick="convertSingle()">转换</button>
+        <button class="btn btn-secondary" onclick="copySingle()">复制结果</button>
+        <button class="btn btn-danger" onclick="clearSingle()">清空</button>
+    </div>
+
+    <div class="hint">转换结果</div>
+    <textarea id="singleOutput" placeholder="转换结果"></textarea>
+</div>
+
+<!-- 批量转换 -->
+<div id="batchTab" class="tab-content">
+    <div class="hint">每行一条 SOCKS5 链接</div>
+    <textarea id="batchInput" placeholder="socks5://user:pass@host:port#remark"></textarea>
+
+    <div style="margin-bottom: 15px;">
+        <button class="btn btn-primary" onclick="convertBatch()">批量转换</button>
+        <button class="btn btn-secondary" onclick="copyBatch()">复制结果</button>
+        <button class="btn btn-danger" onclick="clearBatch()">清空</button>
+    </div>
+
+    <div class="hint">转换结果</div>
+    <textarea id="batchOutput" placeholder="转换结果"></textarea>
+</div>
+
+<!-- 使用说明 -->
+<div id="guideTab" class="tab-content">
+    <ul>
+        <li><strong>单链接转换：</strong>输入一条 <code>socks5://user:pass@host:port#remark</code>，点击“转换”，然后可选择“复制结果”。</li>
+        <li><strong>批量转换：</strong>每行输入一条 SOCKS5 链接，点击“批量转换”，可选择“复制结果”。</li>
+        <li><strong>输出格式：</strong>host:port:username:password</li>
+        <li>转换结果会手动复制到剪贴板。</li>
+        <li>点击“清空”可清空输入和输出。</li>
+        <li>格式错误或不完整的链接将被自动忽略。</li>
+    </ul>
+</div>
 
 <script>
-function convertAndCopy() {
-    const inputEl = document.getElementById("input");
-    const outputEl = document.getElementById("output");
-
-    const input = inputEl.value.trim();
-    if (!input) return;
-
-    const lines = input.split(/\r?\n/);
-    const results = [];
-
-    for (const line of lines) {
-        const cleaned = line
-            .trim()
-            .replace(/^socks5:\/\//, "")
-            .split("#")[0];
-
-        const [userInfo, hostInfo] = cleaned.split("@");
-        if (!userInfo || !hostInfo) continue;
-
-        const [username, password] = userInfo.split(":");
-        const [host, port] = hostInfo.split(":");
-
-        if (username && password && host && port) {
-            results.push(`${host}:${port}:${username}:${password}`);
-        }
-    }
-
-    const outputText = results.join("\n");
-    outputEl.value = outputText;
-
-    // 自动复制（兼容你现在的写法）
-    outputEl.select();
-    document.execCommand("copy");
+function showTab(tabId, el) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    el.classList.add('active');
 }
 
-// ✅ 一键清除函数
-function clearAll() {
-    document.getElementById("input").value = "";
-    document.getElementById("output").value = "";
+// 转换函数
+function convertLink(line) {
+    const cleaned = line.trim().replace(/^socks5:\/\//, "").split("#")[0];
+    if (!cleaned.includes("@")) return null;
+    const [userInfo, hostInfo] = cleaned.split("@");
+    if (!userInfo || !hostInfo) return null;
+    const [username, password] = userInfo.split(":");
+    const [host, port] = hostInfo.split(":");
+    if (username && password && host && port) return `${host}:${port}:${username}:${password}`;
+    return null;
+}
+
+// 单链接转换
+function convertSingle() {
+    const line = document.getElementById("singleInput").value.trim();
+    const outputEl = document.getElementById("singleOutput");
+    if (!line) return alert("请输入 SOCKS5 链接！");
+    const result = convertLink(line);
+    if (!result) return alert("链接格式错误！");
+    outputEl.value = result;
+
+    outputEl.style.transform = "scale(0.95)";
+    outputEl.style.opacity = "0";
+    setTimeout(() => {
+        outputEl.style.transition = "all 0.3s ease";
+        outputEl.style.transform = "scale(1)";
+        outputEl.style.opacity = "1";
+    }, 50);
+}
+
+// 单链接复制
+function copySingle() {
+    const outputEl = document.getElementById("singleOutput");
+    if (!outputEl.value) return alert("没有内容可以复制！");
+    outputEl.select();
+    document.execCommand("copy");
+    alert("结果已复制到剪贴板！");
+}
+
+// 单链接清空
+function clearSingle() {
+    document.getElementById("singleInput").value = "";
+    document.getElementById("singleOutput").value = "";
+}
+
+// 批量转换
+function convertBatch() {
+    const input = document.getElementById("batchInput").value.trim();
+    const outputEl = document.getElementById("batchOutput");
+    if (!input) return alert("请输入 SOCKS5 链接！");
+    const lines = input.split(/\r?\n/);
+    const results = [];
+    for (const line of lines) {
+        const converted = convertLink(line);
+        if (converted) results.push(converted);
+    }
+    if (results.length === 0) return alert("没有有效的 SOCKS5 链接！");
+    outputEl.value = results.join("\n");
+
+    outputEl.style.transform = "scale(0.95)";
+    outputEl.style.opacity = "0";
+    setTimeout(() => {
+        outputEl.style.transition = "all 0.3s ease";
+        outputEl.style.transform = "scale(1)";
+        outputEl.style.opacity = "1";
+    }, 50);
+}
+
+// 批量复制
+function copyBatch() {
+    const outputEl = document.getElementById("batchOutput");
+    if (!outputEl.value) return alert("没有内容可以复制！");
+    outputEl.select();
+    document.execCommand("copy");
+    alert("批量结果已复制到剪贴板！");
+}
+
+// 批量清空
+function clearBatch() {
+    document.getElementById("batchInput").value = "";
+    document.getElementById("batchOutput").value = "";
 }
 </script>
 
